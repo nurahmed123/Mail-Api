@@ -6,7 +6,9 @@ const authPages = ['/login', '/signup']
 export async function middleware(req: Request) {
   const url = new URL(req.url)
   const cookie = (req.headers as any).get?.('cookie') || (req as any).headers.get('cookie') || ''
-  const hasSession = cookie.includes('mailapi_session=')
+  const m = /(?:^|;\s*)mailapi_session=([^;]+)/.exec(cookie || '')
+  const sessionVal = m?.[1]
+  const hasSession = !!(sessionVal && sessionVal.length > 20)
 
   if (authPages.some(p => url.pathname.startsWith(p))) {
     if (hasSession) return NextResponse.redirect(new URL('/dashboard', req.url))
